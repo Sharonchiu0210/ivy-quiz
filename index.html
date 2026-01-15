@@ -285,4 +285,62 @@ make clear 闡明；解釋`;
         }
 
         const currentWord = shuffledList[currentQuestionIdx];
-        document
+        document.getElementById('word-display').innerText = currentWord.word;
+        document.getElementById('current-idx').innerText = currentQuestionIdx + 1;
+        
+        // 更新進度條
+        const progress = (currentQuestionIdx / shuffledList.length) * 100;
+        document.getElementById('progress-fill').style.width = progress + "%";
+
+        // 產生選項
+        let options = [currentWord.trans];
+        while (options.length < 4) {
+            const randomWord = vocabList[Math.floor(Math.random() * vocabList.length)];
+            if (!options.includes(randomWord.trans)) {
+                options.push(randomWord.trans);
+            }
+        }
+        options.sort(() => Math.random() - 0.5);
+
+        const optionsDiv = document.getElementById('options');
+        optionsDiv.innerHTML = '';
+        options.forEach(opt => {
+            const btn = document.createElement('button');
+            btn.innerText = opt;
+            btn.onclick = () => checkAnswer(btn, opt, currentWord.trans);
+            optionsDiv.appendChild(btn);
+        });
+    }
+
+    function checkAnswer(btn, selected, correct) {
+        const buttons = document.querySelectorAll('#options button');
+        buttons.forEach(b => b.disabled = true); // 防止重複點擊
+
+        if (selected === correct) {
+            btn.classList.add('correct');
+            score++;
+        } else {
+            btn.classList.add('wrong');
+            buttons.forEach(b => {
+                if (b.innerText === correct) b.classList.add('correct');
+            });
+        }
+
+        setTimeout(() => {
+            currentQuestionIdx++;
+            showQuestion();
+        }, 1000);
+    }
+
+    function showResult() {
+        document.getElementById('game-zone').style.display = 'none';
+        document.getElementById('score-board').style.display = 'block';
+        document.getElementById('final-score').innerText = score;
+        document.getElementById('final-total').innerText = shuffledList.length;
+    }
+
+    initGame();
+</script>
+
+</body>
+</html>
